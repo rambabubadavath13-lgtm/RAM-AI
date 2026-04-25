@@ -235,16 +235,21 @@ Tone:
 Strict rules: never start with "I am writing to apply for..."; every line specific
 to THIS job; company name appears at least twice; role title at least once.
 
+For quick_answers.notice_period: write a real, role-appropriate sentence such as
+"Available to start immediately" or "30-day notice period" — NEVER output the
+literal placeholder "[YOUR ACTUAL NOTICE PERIOD]". If you genuinely cannot
+infer one, default to "Available within 30 days; flexible based on team needs."
+
 Respond with VALID JSON ONLY (no fences, no prose). Schema:
 {
   "cover_letter": "full letter as plain text with newlines",
   "tone_used": "Startup" | "Enterprise" | "Product" | "Service" | "Creative" | "Professional",
   "word_count": number,
   "quick_answers": {
-    "tell_us_about_yourself": "3-4 lines",
-    "why_should_we_hire_you": "role-specific",
-    "summarize_your_experience": "2-3 lines",
-    "notice_period": "[YOUR ACTUAL NOTICE PERIOD]"
+    "tell_us_about_yourself": "3-4 lines, specific to candidate",
+    "why_should_we_hire_you": "role-specific, ties top 2 strengths to the JD",
+    "summarize_your_experience": "2-3 lines summarising relevant experience",
+    "notice_period": "concrete sentence (see rule above) — never a placeholder"
   }
 }
 """

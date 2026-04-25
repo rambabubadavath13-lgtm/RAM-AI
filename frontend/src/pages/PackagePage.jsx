@@ -213,7 +213,7 @@ export default function PackagePage() {
               {[
                 ["Tell us about yourself", qa.tell_us_about_yourself],
                 ["Why should we hire you", qa.why_should_we_hire_you],
-                ["Summarize your QA experience", qa.summarize_qa_experience],
+                ["Summarize your experience", qa.summarize_your_experience || qa.summarize_qa_experience],
                 ["Notice period", qa.notice_period],
               ].map(([label, val]) => (
                 <div key={label} className="border-2 border-black bg-zinc-50 p-3">
