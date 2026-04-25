@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Copy, Download, Check } from "lucide-react";
@@ -18,8 +18,9 @@ export default function PackagePage() {
   const nav = useNavigate();
   const [params] = useSearchParams();
   const id = params.get("id");
-  // Read state once per render so updates after generation are reflected.
-  const state = loadState();
+  // Snapshot state once on mount; refs prevent re-renders from re-running effects.
+  const stateRef = useRef(loadState());
+  const state = stateRef.current;
   const job = useMemo(
     () => (state.scoreResult?.ranked_jobs || []).find((j) => j.id === id),
     [state.scoreResult, id]
@@ -29,9 +30,13 @@ export default function PackagePage() {
   const [busy, setBusy] = useState(false);
   const [stage, setStage] = useState("");
   const [saved, setSaved] = useState(false);
+  const generatingRef = useRef(false);
+  const generatedForIdRef = useRef(state.packages?.[id] ? id : null);
 
-  const generate = useCallback(async () => {
+  const generate = async () => {
     if (!job || !state.profile || !state.resumeText) return;
+    if (generatingRef.current) return;
+    generatingRef.current = true;
     try {
       setBusy(true);
       setStage("Agent 4 — customizing resume...");
@@ -48,6 +53,7 @@ export default function PackagePage() {
         word_count: c.word_count,
       };
       setPkg(merged);
+      generatedForIdRef.current = id;
       const next = loadState();
       updateState({ packages: { ...(next.packages || {}), [id]: merged } });
       toast.success("Application package ready");
@@ -55,13 +61,19 @@ export default function PackagePage() {
       const msg = e?.budgetExceeded ? e.userMessage : (e?.response?.data?.detail || "Generation failed");
       toast.error(msg, { duration: 8000 });
     } finally {
+      generatingRef.current = false;
       setBusy(false); setStage("");
     }
-  }, [id, job, state.profile, state.resumeText]);
+  };
 
+  // Auto-trigger ONCE per id when there is no cached package.
   useEffect(() => {
-    if (job && !pkg) generate();
-  }, [job, pkg, generate]);
+    if (!job) return;
+    if (generatedForIdRef.current === id) return;
+    if (pkg) { generatedForIdRef.current = id; return; }
+    generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, job]);
 
   const copy = async (txt) => {
     await navigator.clipboard.writeText(txt || "");
