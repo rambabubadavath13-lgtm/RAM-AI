@@ -66,7 +66,7 @@ export default function Layout({ children }) {
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-8 sm:py-12">{children}</main>
       <footer className="border-t-2 border-black bg-white py-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-8 mono-label">
-          Built for QA engineers — Resume-first, auto-discovery
+          Built for any role — Resume-first, auto-discovery
         </div>
       </footer>
     </div>

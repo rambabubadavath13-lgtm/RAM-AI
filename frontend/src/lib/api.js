@@ -14,8 +14,8 @@ export const parseResumeFile = async (file) => {
   return data.resume_text;
 };
 
-export const extractProfile = async (resume_text) =>
-  (await http.post("/agents/extract-profile", { resume_text })).data.profile;
+export const extractProfile = async (resume_text, role_hint) =>
+  (await http.post("/agents/extract-profile", { resume_text, role_hint })).data.profile;
 
 export const generateJobSearches = async (profile) =>
   (await http.post("/agents/job-search", { profile })).data.searches;

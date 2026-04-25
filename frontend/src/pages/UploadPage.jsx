@@ -9,6 +9,7 @@ import { loadState, updateState } from "../lib/store";
 export default function UploadPage() {
   const nav = useNavigate();
   const [text, setText] = useState(loadState().resumeText || "");
+  const [roleHint, setRoleHint] = useState("");
   const [busy, setBusy] = useState(false);
   const [stage, setStage] = useState("");
   const fileRef = useRef(null);
@@ -37,7 +38,7 @@ export default function UploadPage() {
     try {
       setBusy(true);
       setStage("Agent 1 — extracting profile...");
-      const profile = await extractProfile(text);
+      const profile = await extractProfile(text, roleHint);
       updateState({ resumeText: text, profile, searches: null, pastedJobs: [], scoreResult: null, packages: {} });
       toast.success("Profile extracted");
       nav("/profile");
@@ -111,6 +112,20 @@ export default function UploadPage() {
       </div>
 
       {busy && <Loading label={stage || "Working..."} />}
+
+      <div className="brut-card-sm p-4">
+        <div className="mono-label mb-2">Target role hint <span className="text-zinc-500">(optional)</span></div>
+        <input
+          className="brut-input w-full"
+          placeholder="e.g. Frontend Developer, Data Scientist, Product Manager — leave empty to auto-detect from resume"
+          value={roleHint}
+          onChange={(e) => setRoleHint(e.target.value)}
+          data-testid="role-hint-input"
+        />
+        <div className="mt-2 text-xs text-zinc-600">
+          Works for any role — engineering, design, data, product, marketing, etc. Auto-detects from your resume content.
+        </div>
+      </div>
 
       <div className="flex gap-3">
         <button

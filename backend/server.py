@@ -32,6 +32,7 @@ log = logging.getLogger("ajas")
 # ---------- Models ----------
 class ResumeText(BaseModel):
     resume_text: str
+    role_hint: Optional[str] = None
 
 
 class ProfileIn(BaseModel):
@@ -108,7 +109,7 @@ async def extract_profile(payload: ResumeText):
     if not payload.resume_text.strip():
         raise HTTPException(400, "resume_text is empty")
     try:
-        profile = await agents.run_profile_extractor(payload.resume_text)
+        profile = await agents.run_profile_extractor(payload.resume_text, payload.role_hint or "")
     except Exception as e:
         log.exception("agent1 failed")
         raise HTTPException(500, f"Agent 1 failed: {e}")

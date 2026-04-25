@@ -28,19 +28,37 @@ export default function ProfilePage() {
   const nav = useNavigate();
   const { profile } = loadState();
 
-  const radarData = useMemo(() => {
+  // Universal skills schema: profile.skills.categories = [{name, items:[]}]
+  // Backwards compat: if old `hard` object exists, convert to categories.
+  const categories = useMemo(() => {
     if (!profile) return [];
-    const h = profile.skills?.hard || {};
-    const count = (k) => (Array.isArray(h[k]) ? h[k].length : 0);
-    return [
-      { dim: "Automation", v: Math.min(100, count("automation_frameworks") * 25) },
-      { dim: "API", v: Math.min(100, count("api_tools") * 33) },
-      { dim: "Languages", v: Math.min(100, count("languages") * 25) },
-      { dim: "Databases", v: Math.min(100, count("databases") * 33) },
-      { dim: "CI/CD", v: Math.min(100, count("ci_cd") * 33) },
-      { dim: "Methods", v: Math.min(100, count("methodologies") * 25) },
-    ];
+    const s = profile.skills || {};
+    if (Array.isArray(s.categories) && s.categories.length) return s.categories;
+    if (s.hard && typeof s.hard === "object") {
+      const map = {
+        testing_types: "Testing Types",
+        automation_frameworks: "Automation Frameworks",
+        api_tools: "API Tools",
+        languages: "Languages",
+        databases: "Databases",
+        ci_cd: "CI / CD",
+        bug_tracking: "Bug Tracking",
+        methodologies: "Methodologies",
+      };
+      return Object.entries(map)
+        .map(([k, label]) => ({ name: label, items: s.hard[k] || [] }))
+        .filter((c) => Array.isArray(c.items) && c.items.length);
+    }
+    return [];
   }, [profile]);
+
+  const radarData = useMemo(() => {
+    if (!categories.length) return [];
+    return categories.slice(0, 8).map((c) => ({
+      dim: c.name,
+      v: Math.min(100, (Array.isArray(c.items) ? c.items.length : 0) * 25),
+    }));
+  }, [categories]);
 
   if (!profile) {
     return (
@@ -57,7 +75,8 @@ export default function ProfilePage() {
   const c = profile.candidate || {};
   const sp = profile.search_params || {};
   const ps = profile.profile_score || {};
-  const hard = profile.skills?.hard || {};
+  const soft = profile.skills?.soft || [];
+  const domains = profile.skills?.domains || [];
 
   return (
     <div className="space-y-8" data-testid="profile-page">
@@ -69,39 +88,53 @@ export default function ProfilePage() {
         <p className="mt-2 text-zinc-700">{ps.summary}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <Field label="Experience" value={`${c.total_years_experience ?? "—"} yrs`} />
         <Field label="Level" value={c.experience_level} />
         <Field label="Title" value={c.current_title} />
+        <Field label="Primary role" value={c.primary_role} />
         <Field label="Location" value={c.current_location} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="brut-card p-6 lg:col-span-2">
           <div className="mono-label mb-3">Skills Inventory</div>
-          <div className="space-y-3">
-            {[
-              ["Testing Types", hard.testing_types],
-              ["Automation Frameworks", hard.automation_frameworks],
-              ["API Tools", hard.api_tools],
-              ["Languages", hard.languages],
-              ["Databases", hard.databases],
-              ["CI / CD", hard.ci_cd],
-              ["Bug Tracking", hard.bug_tracking],
-              ["Methodologies", hard.methodologies],
-            ].map(([label, list]) => (
-              <div key={label}>
-                <div className="mono-label">{label}</div>
+          <div className="space-y-3" data-testid="skills-categories">
+            {categories.length === 0 && (
+              <span className="text-xs text-zinc-500">— no categories detected</span>
+            )}
+            {categories.map((cat) => (
+              <div key={cat.name}>
+                <div className="mono-label">{cat.name}</div>
                 <div className="mt-1 flex flex-wrap gap-1.5">
-                  {(list || []).length === 0 && (
-                    <span className="text-xs text-zinc-500">— none detected</span>
+                  {(cat.items || []).length === 0 ? (
+                    <span className="text-xs text-zinc-500">— none</span>
+                  ) : (
+                    (cat.items || []).map((x) => (
+                      <Chip key={`${cat.name}-${x}`} testId={`skill-${cat.name}-${x}`}>{x}</Chip>
+                    ))
                   )}
-                  {(list || []).map((x, i) => (
-                    <Chip key={i} testId={`skill-${label}-${i}`}>{x}</Chip>
-                  ))}
                 </div>
               </div>
             ))}
+
+            {!!soft.length && (
+              <div>
+                <div className="mono-label">Soft Skills</div>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {soft.map((x) => <Chip key={`soft-${x}`}>{x}</Chip>)}
+                </div>
+              </div>
+            )}
+
+            {!!domains.length && (
+              <div>
+                <div className="mono-label">Domains</div>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {domains.map((x) => <Chip key={`dom-${x}`}>{x}</Chip>)}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -134,16 +167,16 @@ export default function ProfilePage() {
         <div className="brut-card p-6">
           <div className="mono-label mb-2">Top Strengths</div>
           <ul className="space-y-1">
-            {(ps.strengths || []).map((s, i) => (
-              <li key={i} className="font-mono text-sm">+ {s}</li>
+            {(ps.strengths || []).map((s) => (
+              <li key={`str-${s}`} className="font-mono text-sm">+ {s}</li>
             ))}
           </ul>
         </div>
         <div className="brut-card p-6">
           <div className="mono-label mb-2">Top Gaps</div>
           <ul className="space-y-1">
-            {(ps.gaps || []).map((s, i) => (
-              <li key={i} className="font-mono text-sm">- {s}</li>
+            {(ps.gaps || []).map((s) => (
+              <li key={`gap-${s}`} className="font-mono text-sm">- {s}</li>
             ))}
           </ul>
         </div>
