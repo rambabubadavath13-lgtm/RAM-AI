@@ -124,10 +124,10 @@ Respond with VALID JSON ONLY (no fences, no prose). Schema:
 }
 
 Quantity rules:
-- linkedin: 10 queries (vary titles, skills, locations, experience filters).
-- naukri:   10 queries.
-- indeed:   10 queries.
-- wellfound: 5 queries.
+- linkedin: 12 queries (vary titles, skills, locations, experience filters).
+- naukri:   12 queries.
+- indeed:   12 queries.
+- wellfound: 8 queries.
 - target_companies: 20.
 
 URL rules — VERY IMPORTANT, the URLs MUST open correctly when clicked:

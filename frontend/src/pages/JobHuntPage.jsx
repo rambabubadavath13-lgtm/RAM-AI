@@ -154,6 +154,15 @@ export default function JobHuntPage() {
 
       {searches && (
         <div className="space-y-6" data-testid="search-results">
+          <div className="border-l-4 border-[#002FA7] pl-3">
+            <div className="mono-label">Step A / Open the search links</div>
+            <h3 className="font-display text-xl font-extrabold uppercase tracking-tight">
+              Click "Open" to browse jobs on each platform
+            </h3>
+            <p className="mt-1 text-sm text-zinc-700">
+              Each link opens that platform's search page in a new tab. Browse jobs you like and copy their descriptions back here in Step B.
+            </p>
+          </div>
           <div className="brut-card p-4 flex flex-wrap items-center justify-between gap-3 bg-yellow-100">
             <div>
               <div className="mono-label">Export</div>
@@ -234,16 +243,49 @@ export default function JobHuntPage() {
         </div>
       )}
 
-      <div className="brut-card p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="mono-label">Paste found jobs back here</div>
-          <button className="brut-btn" onClick={addJob} data-testid="add-job-btn">
-            <Plus size={14} className="mr-1 inline" /> Add Job
-          </button>
+      <div className="brut-card p-6" data-testid="paste-jobs-section">
+        <div className="mb-4 border-l-4 border-[#002FA7] pl-3">
+          <div className="mono-label">Step B / Paste jobs you found</div>
+          <h3 className="font-display text-xl font-extrabold uppercase tracking-tight">
+            Paste each job description below
+          </h3>
+          <ol className="mt-2 list-decimal pl-5 text-sm text-zinc-700 space-y-1">
+            <li>Click an "Open" link above (LinkedIn / Naukri / Indeed / Wellfound) to visit that platform's search results.</li>
+            <li>On a job listing you like, copy <b>Title</b>, <b>Company</b>, <b>Location</b>, and the full <b>Job Description</b>.</li>
+            <li>Paste them into the card below. Click <b>+ Add Job</b> to add more cards.</li>
+            <li>Click <b>Score & Rank</b> to let Agent 3 rank them all against your profile.</li>
+          </ol>
         </div>
+
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-2 border-black bg-zinc-50 px-4 py-3">
+          <div>
+            <div className="mono-label">Detected</div>
+            <div className="font-display text-2xl font-black" data-testid="pasted-jobs-count">
+              {jobs.filter((j) => j.title.trim() && j.company.trim() && j.description.trim()).length}
+              <span className="text-sm font-bold ml-2 text-zinc-600">/ {jobs.length} valid jobs</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button className="brut-btn" onClick={addJob} data-testid="add-job-btn-top">
+              <Plus size={14} className="mr-1 inline" /> Add Job Card
+            </button>
+            <button className="brut-btn" onClick={exportPastedJobsCsv} data-testid="export-pasted-jobs-csv-btn-top">
+              <FileSpreadsheet size={14} className="mr-1 inline" /> Download Pasted Jobs CSV
+            </button>
+          </div>
+        </div>
+
         <div className="space-y-4">
           {jobs.map((j, idx) => (
             <div key={j.id} className="border-2 border-black bg-zinc-50 p-4" data-testid={`job-form-${idx}`}>
+              <div className="mb-2 flex items-center justify-between">
+                <div className="mono-label">Job #{idx + 1}</div>
+                {j.title.trim() && j.company.trim() && j.description.trim() && (
+                  <span className="border-2 border-black bg-[#00C853] px-2 py-0.5 font-mono text-xs font-bold uppercase">
+                    Ready
+                  </span>
+                )}
+              </div>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <input className="brut-input" placeholder="Title" value={j.title}
                   onChange={(e) => updateJob(j.id, "title", e.target.value)}
@@ -275,7 +317,7 @@ export default function JobHuntPage() {
             Score & Rank {jobs.length} Jobs →
           </button>
           <button className="brut-btn" onClick={exportPastedJobsCsv} data-testid="export-pasted-jobs-csv-btn">
-            <FileSpreadsheet size={14} className="mr-1 inline" /> Export Pasted Jobs to Excel/CSV
+            <FileSpreadsheet size={14} className="mr-1 inline" /> Download Pasted Jobs CSV
           </button>
           <button className="brut-btn" onClick={() => nav("/profile")} data-testid="back-profile-btn">← Profile</button>
         </div>
