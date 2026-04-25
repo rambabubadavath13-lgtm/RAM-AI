@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { ExternalLink, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, Plus, Trash2, FileSpreadsheet } from "lucide-react";
 import Loading from "../components/Loading";
 import { generateJobSearches, scoreJobs } from "../lib/api";
 import { loadState, updateState } from "../lib/store";
+import { downloadCsv } from "../lib/csv";
 
 const PLATFORMS = [
   { key: "linkedin", label: "LinkedIn" },
