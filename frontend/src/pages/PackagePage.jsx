@@ -91,7 +91,7 @@ export default function PackagePage() {
         return;
       }
       await downloadDoc(fmt, content, baseName);
-      toast.success(`Downloaded ${baseName}.${fmt}`);
+      toast.success(`Saved ${baseName}.${fmt} to your Downloads folder (Ctrl+J / Cmd+Shift+J to open)`, { duration: 7000 });
     } catch (e) {
       toast.error(e?.response?.data?.detail || "Download failed");
     }

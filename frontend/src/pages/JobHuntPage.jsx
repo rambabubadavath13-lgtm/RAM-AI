@@ -101,7 +101,7 @@ export default function JobHuntPage() {
       return;
     }
     downloadCsv(`job_search_${new Date().toISOString().slice(0, 10)}`, headers, rows);
-    toast.success(`Exported ${rows.length} rows to CSV`);
+    toast.success(`Saved ${rows.length}-row CSV to your Downloads folder (Ctrl+J / Cmd+Shift+J to view)`, { duration: 7000 });
   };
 
   const exportPastedJobsCsv = () => {
@@ -113,7 +113,7 @@ export default function JobHuntPage() {
     const headers = ["Title", "Company", "Location", "URL", "Description"];
     const rows = valid.map((j) => [j.title, j.company, j.location || "", j.url || "", j.description]);
     downloadCsv(`pasted_jobs_${new Date().toISOString().slice(0, 10)}`, headers, rows);
-    toast.success(`Exported ${rows.length} jobs to CSV`);
+    toast.success(`Saved ${rows.length} jobs to your Downloads folder (Ctrl+J / Cmd+Shift+J to view)`, { duration: 7000 });
   };
 
   return (
