@@ -7,6 +7,7 @@ import {
   customizeResume, writeCoverLetter, downloadDoc, createApplication,
 } from "../lib/api";
 import { loadState, updateState } from "../lib/store";
+import { copyToClipboard } from "../lib/clipboard";
 
 const TABS = [
   { key: "resume", label: "Customized Resume" },
@@ -76,17 +77,23 @@ export default function PackagePage() {
   }, [id, job]);
 
   const copy = async (txt) => {
-    await navigator.clipboard.writeText(txt || "");
-    toast.success("Copied");
+    const ok = await copyToClipboard(txt || "");
+    if (ok) toast.success("Copied to clipboard");
+    else toast.error("Copy blocked by browser — select the text manually");
   };
 
   const dl = async (fmt, kind) => {
     try {
       const baseName = `${(job?.company || "company").replace(/\s+/g, "_")}_${kind}`;
       const content = kind === "resume" ? pkg.customized_resume : pkg.cover_letter;
-      await downloadDoc(fmt, content || "", baseName);
+      if (!content) {
+        toast.error("Nothing to download yet");
+        return;
+      }
+      await downloadDoc(fmt, content, baseName);
+      toast.success(`Downloaded ${baseName}.${fmt}`);
     } catch (e) {
-      toast.error("Download failed");
+      toast.error(e?.response?.data?.detail || "Download failed");
     }
   };
 

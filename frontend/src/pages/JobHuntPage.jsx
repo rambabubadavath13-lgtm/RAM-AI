@@ -41,7 +41,13 @@ export default function JobHuntPage() {
       const s = await generateJobSearches(state.profile);
       setSearches(s);
       updateState({ searches: s });
-      toast.success("Search links ready");
+      const total =
+        (s.linkedin?.length || 0) +
+        (s.naukri?.length || 0) +
+        (s.indeed?.length || 0) +
+        (s.wellfound?.length || 0) +
+        (s.target_companies?.length || 0);
+      toast.success(`${total} search links + companies ready`);
     } catch (e) {
       const msg = e?.budgetExceeded ? e.userMessage : (e?.response?.data?.detail || "Agent 2 failed");
       toast.error(msg, { duration: 8000 });
@@ -141,11 +147,6 @@ export default function JobHuntPage() {
           <button className="brut-btn-primary" onClick={generate} disabled={busy} data-testid="generate-searches-btn">
             Generate Search URLs →
           </button>
-          {searches && (
-            <button className="brut-btn" onClick={exportSearchesCsv} data-testid="export-searches-csv-btn">
-              <FileSpreadsheet size={14} className="mr-1 inline" /> Export to Excel/CSV
-            </button>
-          )}
         </div>
       </div>
 
@@ -153,6 +154,15 @@ export default function JobHuntPage() {
 
       {searches && (
         <div className="space-y-6" data-testid="search-results">
+          <div className="brut-card p-4 flex flex-wrap items-center justify-between gap-3 bg-yellow-100">
+            <div>
+              <div className="mono-label">Export</div>
+              <div className="font-display text-lg font-extrabold">All search links + companies →</div>
+            </div>
+            <button className="brut-btn-primary" onClick={exportSearchesCsv} data-testid="export-searches-csv-btn-banner">
+              <FileSpreadsheet size={14} className="mr-1 inline" /> Download Excel/CSV
+            </button>
+          </div>
           {PLATFORMS.filter((p) => enabled[p.key] && Array.isArray(searches[p.key])).map((p) => (
             <div key={p.key} className="brut-card p-6">
               <div className="mono-label mb-3">{p.label} — {searches[p.key].length} queries</div>
