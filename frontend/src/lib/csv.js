@@ -20,8 +20,14 @@ export const downloadCsv = (filename, headers, rows) => {
   const a = document.createElement("a");
   a.href = url;
   a.download = filename.endsWith(".csv") ? filename : `${filename}.csv`;
+  // target=_blank helps in iframe / preview contexts where same-frame downloads
+  // are blocked by the browser.
+  a.target = "_blank";
+  a.rel = "noopener";
   document.body.appendChild(a);
   a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, 4000);
 };

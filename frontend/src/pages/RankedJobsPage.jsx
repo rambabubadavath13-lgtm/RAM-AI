@@ -98,10 +98,26 @@ export default function RankedJobsPage() {
             <p className="mt-3 border-l-4 border-black pl-3 text-sm italic">{j.why_apply}</p>
           )}
 
-          <div className="mt-4 flex justify-end">
-            <button className="brut-btn-primary" onClick={() => openPackage(j)} data-testid={`open-package-${j.id}`}>
-              Generate Application Package <ChevronRight size={14} className="inline" />
-            </button>
+          <div className="mt-4 flex items-center justify-end gap-3">
+            {j.tier === "TIER_1" ? (
+              <button className="brut-btn-primary" onClick={() => openPackage(j)} data-testid={`open-package-${j.id}`}>
+                Generate Application Package <ChevronRight size={14} className="inline" />
+              </button>
+            ) : (
+              <>
+                <span className="font-mono text-xs uppercase tracking-wider text-zinc-600">
+                  Tier {j.tier === "TIER_2" ? "2" : "3"} — saving budget. Score too low to auto-generate.
+                </span>
+                <button
+                  className="brut-btn"
+                  onClick={() => openPackage(j)}
+                  data-testid={`open-package-anyway-${j.id}`}
+                  title="Override: spend tokens on a non-Tier-1 job"
+                >
+                  Generate anyway
+                </button>
+              </>
+            )}
           </div>
         </div>
       ))}

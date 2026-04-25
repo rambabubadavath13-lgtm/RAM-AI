@@ -66,8 +66,13 @@ export const downloadDoc = async (fmt, content, filename) => {
   const a = document.createElement("a");
   a.href = url;
   a.download = `${filename}.${fmt}`;
+  // target=_blank helps when the page is embedded in an iframe (preview).
+  a.target = "_blank";
+  a.rel = "noopener";
   document.body.appendChild(a);
   a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, 4000);
 };
