@@ -74,6 +74,41 @@ export default function JobHuntPage() {
     }
   };
 
+  const exportSearchesCsv = () => {
+    if (!searches) {
+      toast.error("Generate search URLs first");
+      return;
+    }
+    const headers = ["Source", "Label", "URL", "Notes"];
+    const rows = [];
+    PLATFORMS.forEach((p) => {
+      (searches[p.key] || []).forEach((q) => rows.push([p.label, q.label || "", q.url || "", "Search query"]));
+    });
+    (searches.target_companies || []).forEach((c) =>
+      rows.push(["Target Company", c.company || "", c.careers_url || "", `${c.why_fits || ""} | Stack: ${c.stack_match || ""}`])
+    );
+    if (searches.boolean_search) rows.push(["Boolean", "Job board boolean string", "", searches.boolean_search]);
+    if (searches.google_xray) rows.push(["Google X-Ray", "X-Ray search string", "", searches.google_xray]);
+    if (!rows.length) {
+      toast.error("Nothing to export yet");
+      return;
+    }
+    downloadCsv(`job_search_${new Date().toISOString().slice(0, 10)}`, headers, rows);
+    toast.success(`Exported ${rows.length} rows to CSV`);
+  };
+
+  const exportPastedJobsCsv = () => {
+    const valid = jobs.filter((j) => j.title.trim() || j.company.trim() || j.description.trim());
+    if (!valid.length) {
+      toast.error("No pasted jobs to export");
+      return;
+    }
+    const headers = ["Title", "Company", "Location", "URL", "Description"];
+    const rows = valid.map((j) => [j.title, j.company, j.location || "", j.url || "", j.description]);
+    downloadCsv(`pasted_jobs_${new Date().toISOString().slice(0, 10)}`, headers, rows);
+    toast.success(`Exported ${rows.length} jobs to CSV`);
+  };
+
   return (
     <div className="space-y-8" data-testid="hunt-page">
       <div>
@@ -105,6 +140,11 @@ export default function JobHuntPage() {
           <button className="brut-btn-primary" onClick={generate} disabled={busy} data-testid="generate-searches-btn">
             Generate Search URLs →
           </button>
+          {searches && (
+            <button className="brut-btn" onClick={exportSearchesCsv} data-testid="export-searches-csv-btn">
+              <FileSpreadsheet size={14} className="mr-1 inline" /> Export to Excel/CSV
+            </button>
+          )}
         </div>
       </div>
 
@@ -219,9 +259,12 @@ export default function JobHuntPage() {
           ))}
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-wrap gap-3">
           <button className="brut-btn-primary" onClick={score} disabled={busy} data-testid="score-rank-btn">
             Score & Rank {jobs.length} Jobs →
+          </button>
+          <button className="brut-btn" onClick={exportPastedJobsCsv} data-testid="export-pasted-jobs-csv-btn">
+            <FileSpreadsheet size={14} className="mr-1 inline" /> Export Pasted Jobs to Excel/CSV
           </button>
           <button className="brut-btn" onClick={() => nav("/profile")} data-testid="back-profile-btn">← Profile</button>
         </div>
