@@ -1,0 +1,78 @@
+{
+  "theme": "Light",
+  "archetype": "4 (Swiss & High-Contrast)",
+  "design_philosophy": "Neo-Brutalist SaaS Dashboard. Raw, bold structures with thick borders, dominant typography, and extreme contrast ratios. Focus on operational utility, data clarity, and 'control room' aesthetics.",
+  "colors": {
+    "background": "#FFFFFF",
+    "surface": "#F4F4F5",
+    "text_primary": "#000000",
+    "text_secondary": "#52525B",
+    "border": "#000000",
+    "primary": "#002FA7",
+    "primary_hover": "#001F6E",
+    "tier_1_green": "#00C853",
+    "tier_2_amber": "#FFD600",
+    "tier_3_red": "#D50000"
+  },
+  "typography": {
+    "headings_font": "Cabinet Grotesk",
+    "body_font": "IBM Plex Sans",
+    "mono_font": "IBM Plex Mono",
+    "h1": "text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter uppercase",
+    "h2": "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight",
+    "h3": "text-xl sm:text-2xl font-bold",
+    "body": "text-base leading-relaxed text-zinc-900",
+    "mono_labels": "font-mono text-xs uppercase tracking-[0.2em] font-semibold"
+  },
+  "spacing_and_layout": {
+    "global_padding": "p-6 sm:p-8",
+    "grid_system": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6",
+    "card_padding": "p-6",
+    "surface_style": "Grid Borders: border-collapse style layout or border-2 border-black. Sharp edges, 0px border-radius."
+  },
+  "components": {
+    "buttons": "rounded-none border-2 border-black bg-white text-black font-bold uppercase tracking-wide hover:bg-black hover:text-white transition-colors duration-150 data-[variant=primary]:bg-[#002FA7] data-[variant=primary]:text-white data-[variant=primary]:border-black data-[variant=primary]:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:data-[variant=primary]:translate-y-[4px] hover:data-[variant=primary]:translate-x-[4px] hover:data-[variant=primary]:shadow-none",
+    "cards": "rounded-none border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
+    "inputs": "rounded-none border-2 border-black focus:ring-2 focus:ring-[#002FA7] focus:outline-none bg-zinc-50 p-3",
+    "tabs": "rounded-none border-b-2 border-black data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:bg-zinc-100 data-[state=active]:font-bold",
+    "progress_bars": "rounded-none border-2 border-black bg-zinc-100 overflow-hidden [&>div]:rounded-none"
+  },
+  "screens": {
+    "screen_1_upload": "Center drag-and-drop zone. Massive dashed border (border-4 border-dashed border-black). Use IBM Plex Mono for upload instructions. Pure utilitarian feel.",
+    "screen_2_profile": "Control Room Grid (Dense). Radar chart with sharp, linear strokes (no curves). Large display text for Uniqueness Score (text-6xl font-black).",
+    "screen_3_job_hunt": "List of URL cards with brutalist offset shadow. Paste-jobs form uses high-contrast inputs.",
+    "screen_4_ranked_jobs": "Dense list. Tier 1 uses bright green accents, Tier 2 amber, Tier 3 red. All encapsulated in thick black borders. Progress bars for match score.",
+    "screen_5_app_package": "Brutalist file-folder tab style via Shadcn Tabs. Raw text areas for cover letters resembling a terminal or plain notepad.",
+    "screen_6_kanban": "4 columns with border-r-2 border-black. Draggable cards are simple white rectangles with black borders."
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.pexels.com/photos/7661185/pexels-photo-7661185.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "empty_state",
+        "description": "Minimalist graphic for empty states or empty kanban columns"
+      },
+      {
+        "url": "https://images.pexels.com/photos/9635254/pexels-photo-9635254.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "app_background",
+        "description": "Sleek, minimalist aesthetic for login or auth screen background"
+      }
+    ]
+  },
+  "motion": {
+    "philosophy": "Snappy, raw utility. No elasticity. Instant visual feedback.",
+    "hover": "Buttons physically depress (translate X/Y by 4px) to eliminate offset shadow, making them feel extremely tactile. Hovering cards darkens the border slightly."
+  },
+  "accessibility": {
+    "testing_attributes": "All interactive elements MUST have data-testid attributes (e.g., data-testid='upload-resume-btn').",
+    "contrast": "Extreme contrast. Text must be perfectly readable. Follow APCA standards."
+  },
+  "instructions_to_main_agent": [
+    "DO NOT use 'Inter', 'Roboto', 'Open Sans', 'Lato' or 'Space Grotesk' fonts.",
+    "Use pure HTML+Tailwind for layout structure. Use Shadcn for complex interactions (Tabs, Progress, Dialog) but heavily override classes to remove rounded corners (rounded-none) and add thick black borders (border-2 border-black).",
+    "Never use soft transparent shadows. Use solid black offset shadows: shadow-[4px_4px_0px_0px_rgba(0,0,0,1)].",
+    "Ensure data-testid attributes are placed on every form, input, button, and tab.",
+    "Integrate Recharts for Screen 2 Radar chart. Strip out soft curves, use sharp linear lines.",
+    "Install specific fonts via CSS imports and map them in tailwind.config.js."
+  ]
+}
