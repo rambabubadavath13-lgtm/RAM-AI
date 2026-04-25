@@ -31,7 +31,7 @@ export default function JobHuntPage() {
       toast.error("Upload a resume first");
       nav("/");
     }
-  }, []);
+  }, [state.profile, nav]);
 
   const generate = async () => {
     try {
@@ -114,13 +114,13 @@ export default function JobHuntPage() {
             <div key={p.key} className="brut-card p-6">
               <div className="mono-label mb-3">{p.label} — {searches[p.key].length} queries</div>
               <ul className="space-y-2">
-                {searches[p.key].map((q, i) => (
-                  <li key={i} className="flex items-start justify-between gap-3 border-2 border-black bg-zinc-50 p-3">
+                {searches[p.key].map((q) => (
+                  <li key={q.url} className="flex items-start justify-between gap-3 border-2 border-black bg-zinc-50 p-3">
                     <div className="min-w-0">
                       <div className="font-bold">{q.label}</div>
                       <div className="truncate font-mono text-xs text-zinc-600">{q.url}</div>
                     </div>
-                    <a href={q.url} target="_blank" rel="noreferrer" className="brut-btn whitespace-nowrap" data-testid={`open-${p.key}-${i}`}>
+                    <a href={q.url} target="_blank" rel="noreferrer" className="brut-btn whitespace-nowrap" data-testid={`open-${p.key}-${q.url}`}>
                       Open <ExternalLink size={12} className="ml-1 inline" />
                     </a>
                   </li>

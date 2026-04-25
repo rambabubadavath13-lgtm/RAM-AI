@@ -5,6 +5,9 @@ import {
 } from "recharts";
 import { loadState } from "../lib/store";
 
+const RADAR_TICK = { fill: "#000", fontSize: 11 };
+const RADAR_DOMAIN = [0, 100];
+
 const Field = ({ label, value }) => (
   <div className="border-2 border-black bg-zinc-50 p-3">
     <div className="mono-label">{label}</div>
@@ -108,8 +111,8 @@ export default function ProfilePage() {
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarData} outerRadius="75%">
                 <PolarGrid stroke="#000" />
-                <PolarAngleAxis dataKey="dim" tick={{ fill: "#000", fontSize: 11 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} stroke="#000" />
+                <PolarAngleAxis dataKey="dim" tick={RADAR_TICK} />
+                <PolarRadiusAxis angle={30} domain={RADAR_DOMAIN} tick={false} stroke="#000" />
                 <Radar dataKey="v" stroke="#002FA7" fill="#002FA7" fillOpacity={0.35} isAnimationActive={false} />
               </RadarChart>
             </ResponsiveContainer>

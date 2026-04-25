@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Copy, Download, Check } from "lucide-react";
@@ -18,6 +18,7 @@ export default function PackagePage() {
   const nav = useNavigate();
   const [params] = useSearchParams();
   const id = params.get("id");
+  // Read state once per render so updates after generation are reflected.
   const state = loadState();
   const job = useMemo(
     () => (state.scoreResult?.ranked_jobs || []).find((j) => j.id === id),
@@ -29,13 +30,7 @@ export default function PackagePage() {
   const [stage, setStage] = useState("");
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    if (!job) return;
-    if (!pkg) generate();
-    // eslint-disable-next-line
-  }, [id]);
-
-  const generate = async () => {
+  const generate = useCallback(async () => {
     if (!job || !state.profile || !state.resumeText) return;
     try {
       setBusy(true);
@@ -61,7 +56,11 @@ export default function PackagePage() {
     } finally {
       setBusy(false); setStage("");
     }
-  };
+  }, [id, job, state.profile, state.resumeText]);
+
+  useEffect(() => {
+    if (job && !pkg) generate();
+  }, [job, pkg, generate]);
 
   const copy = async (txt) => {
     await navigator.clipboard.writeText(txt || "");
@@ -167,7 +166,7 @@ export default function PackagePage() {
                 <div className="mt-4 border-l-4 border-[#002FA7] pl-3">
                   <div className="mono-label mb-1">What changed</div>
                   <ul className="text-sm">
-                    {pkg.change_summary.map((c, i) => <li key={i}>• {c}</li>)}
+                    {pkg.change_summary.map((c) => <li key={c}>• {c}</li>)}
                   </ul>
                 </div>
               )}
@@ -196,8 +195,8 @@ export default function PackagePage() {
                 ["Why should we hire you", qa.why_should_we_hire_you],
                 ["Summarize your QA experience", qa.summarize_qa_experience],
                 ["Notice period", qa.notice_period],
-              ].map(([label, val], i) => (
-                <div key={i} className="border-2 border-black bg-zinc-50 p-3">
+              ].map(([label, val]) => (
+                <div key={label} className="border-2 border-black bg-zinc-50 p-3">
                   <div className="flex items-center justify-between">
                     <div className="mono-label">{label}</div>
                     <button className="brut-btn" onClick={() => copy(val)}><Copy size={12} className="inline" /> Copy</button>

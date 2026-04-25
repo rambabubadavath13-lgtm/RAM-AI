@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { Trash2, ExternalLink } from "lucide-react";
 import { listApplications, updateStatus, deleteApplication } from "../lib/api";
@@ -13,15 +13,15 @@ const COLS = [
 export default function TrackerPage() {
   const [items, setItems] = useState([]);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       setItems(await listApplications());
     } catch {
       toast.error("Failed to load applications");
     }
-  };
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const onDragStart = (e, id) => {
     e.dataTransfer.setData("text/plain", id);
