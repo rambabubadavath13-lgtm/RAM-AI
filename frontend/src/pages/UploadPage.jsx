@@ -43,7 +43,8 @@ export default function UploadPage() {
       toast.success("Profile extracted");
       nav("/profile");
     } catch (e) {
-      toast.error(e?.response?.data?.detail || "Agent 1 failed");
+      const msg = e?.budgetExceeded ? e.userMessage : (e?.response?.data?.detail || "Agent 1 failed");
+      toast.error(msg, { duration: 8000 });
     } finally {
       setBusy(false);
       setStage("");

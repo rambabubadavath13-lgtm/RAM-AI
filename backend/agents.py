@@ -10,15 +10,20 @@ from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
 MODEL_PROVIDER = "anthropic"
-MODEL_NAME = "claude-sonnet-4-5-20250929"
+MODEL_FAST = "claude-haiku-4-5-20251001"      # cheap: profile, hunt, score
+MODEL_QUALITY = "claude-sonnet-4-5-20250929"  # quality: resume, cover letter
 
 
-def _new_chat(system_message: str) -> LlmChat:
+class BudgetExceededError(Exception):
+    """Raised when the Emergent Universal LLM Key budget is exhausted."""
+
+
+def _new_chat(system_message: str, model: str = MODEL_QUALITY) -> LlmChat:
     return LlmChat(
         api_key=EMERGENT_LLM_KEY,
         session_id=str(uuid.uuid4()),
         system_message=system_message,
-    ).with_model(MODEL_PROVIDER, MODEL_NAME)
+    ).with_model(MODEL_PROVIDER, model)
 
 
 def _extract_json(text: str):
@@ -224,9 +229,19 @@ Respond with VALID JSON ONLY (no fences, no prose). Schema:
 """
 
 
-async def _send(system: str, user_text: str) -> dict:
-    chat = _new_chat(system)
-    response = await chat.send_message(UserMessage(text=user_text))
+async def _send(system: str, user_text: str, model: str = MODEL_QUALITY) -> dict:
+    chat = _new_chat(system, model)
+    try:
+        response = await chat.send_message(UserMessage(text=user_text))
+    except Exception as e:
+        msg = str(e)
+        if "Budget has been exceeded" in msg or "budget_exceeded" in msg:
+            raise BudgetExceededError(
+                "Your Emergent Universal LLM Key has run out of balance. "
+                "Top it up at Profile → Universal Key → Add Balance "
+                "(enable Auto Top-Up to avoid interruptions)."
+            ) from e
+        raise
     parsed = _extract_json(response)
     if parsed is None:
         raise ValueError(f"LLM returned non-JSON response: {response[:500]}")
@@ -237,21 +252,21 @@ async def run_profile_extractor(resume_text: str, role_hint: str = "") -> dict:
     user_payload = f"BASE RESUME:\n{resume_text}"
     if role_hint and role_hint.strip():
         user_payload += f"\n\nTARGET ROLE HINT (optional, user-provided): {role_hint.strip()}"
-    return await _send(PROFILE_SYS, user_payload)
+    return await _send(PROFILE_SYS, user_payload, MODEL_FAST)
 
 
 async def run_job_hunter(profile: dict) -> dict:
-    return await _send(JOB_HUNTER_SYS, f"CANDIDATE PROFILE JSON:\n{json.dumps(profile)}")
+    return await _send(JOB_HUNTER_SYS, f"CANDIDATE PROFILE JSON:\n{json.dumps(profile)}", MODEL_FAST)
 
 
 async def run_scorer(profile: dict, jobs: list) -> dict:
     payload = {"profile": profile, "jobs": jobs}
-    return await _send(SCORER_SYS, f"INPUT:\n{json.dumps(payload)}")
+    return await _send(SCORER_SYS, f"INPUT:\n{json.dumps(payload)}", MODEL_FAST)
 
 
 async def run_resume_customizer(resume_text: str, profile: dict, job: dict) -> dict:
     payload = {"base_resume": resume_text, "profile": profile, "target_job": job}
-    return await _send(RESUME_SYS, f"INPUT:\n{json.dumps(payload)}")
+    return await _send(RESUME_SYS, f"INPUT:\n{json.dumps(payload)}", MODEL_QUALITY)
 
 
 async def run_cover_letter(profile: dict, job: dict, customized_resume: str) -> dict:
@@ -260,4 +275,4 @@ async def run_cover_letter(profile: dict, job: dict, customized_resume: str) -> 
         "target_job": job,
         "customized_resume": customized_resume,
     }
-    return await _send(COVER_SYS, f"INPUT:\n{json.dumps(payload)}")
+    return await _send(COVER_SYS, f"INPUT:\n{json.dumps(payload)}", MODEL_QUALITY)

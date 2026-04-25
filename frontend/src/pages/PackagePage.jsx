@@ -52,7 +52,8 @@ export default function PackagePage() {
       updateState({ packages: { ...(next.packages || {}), [id]: merged } });
       toast.success("Application package ready");
     } catch (e) {
-      toast.error(e?.response?.data?.detail || "Generation failed");
+      const msg = e?.budgetExceeded ? e.userMessage : (e?.response?.data?.detail || "Generation failed");
+      toast.error(msg, { duration: 8000 });
     } finally {
       setBusy(false); setStage("");
     }

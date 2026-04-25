@@ -110,6 +110,8 @@ async def extract_profile(payload: ResumeText):
         raise HTTPException(400, "resume_text is empty")
     try:
         profile = await agents.run_profile_extractor(payload.resume_text, payload.role_hint or "")
+    except agents.BudgetExceededError as e:
+        raise HTTPException(402, str(e))
     except Exception as e:
         log.exception("agent1 failed")
         raise HTTPException(500, f"Agent 1 failed: {e}")
@@ -120,6 +122,8 @@ async def extract_profile(payload: ResumeText):
 async def job_search(payload: ProfileIn):
     try:
         result = await agents.run_job_hunter(payload.profile)
+    except agents.BudgetExceededError as e:
+        raise HTTPException(402, str(e))
     except Exception as e:
         log.exception("agent2 failed")
         raise HTTPException(500, f"Agent 2 failed: {e}")
@@ -138,6 +142,8 @@ async def score_jobs(payload: ScoreRequest):
         jobs.append(d)
     try:
         result = await agents.run_scorer(payload.profile, jobs)
+    except agents.BudgetExceededError as e:
+        raise HTTPException(402, str(e))
     except Exception as e:
         log.exception("agent3 failed")
         raise HTTPException(500, f"Agent 3 failed: {e}")
@@ -157,6 +163,8 @@ async def customize_resume(payload: CustomizeRequest):
         result = await agents.run_resume_customizer(
             payload.resume_text, payload.profile, payload.job.model_dump()
         )
+    except agents.BudgetExceededError as e:
+        raise HTTPException(402, str(e))
     except Exception as e:
         log.exception("agent4 failed")
         raise HTTPException(500, f"Agent 4 failed: {e}")
@@ -169,6 +177,8 @@ async def cover_letter(payload: CoverRequest):
         result = await agents.run_cover_letter(
             payload.profile, payload.job.model_dump(), payload.customized_resume
         )
+    except agents.BudgetExceededError as e:
+        raise HTTPException(402, str(e))
     except Exception as e:
         log.exception("agent5 failed")
         raise HTTPException(500, f"Agent 5 failed: {e}")

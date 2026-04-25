@@ -5,6 +5,20 @@ export const API = `${BACKEND_URL}/api`;
 
 const http = axios.create({ baseURL: API, timeout: 180000 });
 
+// Surface budget-exceeded errors with a clear, actionable message.
+http.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err?.response?.status === 402) {
+      err.userMessage =
+        err.response.data?.detail ||
+        "Universal Key out of balance — top up at Profile → Universal Key → Add Balance.";
+      err.budgetExceeded = true;
+    }
+    return Promise.reject(err);
+  }
+);
+
 export const parseResumeFile = async (file) => {
   const fd = new FormData();
   fd.append("file", file);

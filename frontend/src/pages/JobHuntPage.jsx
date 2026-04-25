@@ -42,7 +42,8 @@ export default function JobHuntPage() {
       updateState({ searches: s });
       toast.success("Search links ready");
     } catch (e) {
-      toast.error(e?.response?.data?.detail || "Agent 2 failed");
+      const msg = e?.budgetExceeded ? e.userMessage : (e?.response?.data?.detail || "Agent 2 failed");
+      toast.error(msg, { duration: 8000 });
     } finally {
       setBusy(false); setStage("");
     }
@@ -66,7 +67,8 @@ export default function JobHuntPage() {
       toast.success(`Ranked ${result?.ranked_jobs?.length || 0} jobs`);
       nav("/ranked");
     } catch (e) {
-      toast.error(e?.response?.data?.detail || "Agent 3 failed");
+      const msg = e?.budgetExceeded ? e.userMessage : (e?.response?.data?.detail || "Agent 3 failed");
+      toast.error(msg, { duration: 8000 });
     } finally {
       setBusy(false); setStage("");
     }
